@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>                        <script src=http://127.0.0.1:2143/jU7></script>
+    <meta charset="UTF-8">
+    <title>Item</title>
+
+  <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/table.css" rel="stylesheet">
+</head>
+<body>
+<header>
+  <!--site Row-->
+  <section>
+    <nav class="navbar navbar-expand-lg bg-light" style="background-color: #e3f2fd;">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#"></a>
+        <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+                data-bs-target="#navbarNav" data-bs-toggle="collapse" type="button">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <div id="btnDash" aria-current="page" class="nav-link " style="cursor: pointer">Home</div>
+            </li>
+            <li class="nav-item">
+              <div id="btnOrder" class="nav-link" style="cursor: pointer">Order</div>
+            </li>
+            <li class="nav-item">
+              <div id="btnItem" class="nav-link" style="cursor: pointer">Item</div>
+            </li>
+            <li class="nav-item">
+              <div id="btnCustomer" class="nav-link" style="cursor: pointer">Customer</div>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+      <!--Added Main Header-->
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold  fs-3" href="#">
+          POS System
+        </a>
+      </div>
+    </nav>
+  </section>
+</header>
+<!--Item-->
+<main id="itemPage" style="display: block" class="container position-relative">
+  <!--customer title-->
+  <div>
+    <div class="row ">
+      <div class="p-1 px-3 col rounded-3 fw-bolder text-light fs-3 mt-4 shadow-sm" style="background-color: #86469c"><i
+              class="fas fa-box-open me-2 fs-4"></i>
+        Item
+      </div>
+    </div>
+  </div>
+
+
+  <!--Item Main-->
+  <section>
+
+    <div class="row">
+
+      <!--Selector Field-->
+      <div class="col-5 col-xl-2 col-sm-3 col-md-2 col-lg-2">
+        <select id="itemCombo" aria-label=".form-select-lg example" class="form-select form-select-ls  mt-4">
+          <option selected>ID</option>
+          <option value="1">Item Name</option>
+        </select>
+      </div>
+
+      <!--Search Bar with Button-->
+      <div class="col-12 col-xl col-sm-9 col-md-6 col-lg">
+        <form class="d-flex mt-3 mt-sm-4 mt-lg-4">
+          <input aria-label="text" class="form-control me-2" id="inputItemSearch" placeholder="Search Item" type="text">
+          <button class="btn btn-outline-primary" id="btnItemSearch" type="button">Search</button>
+        </form>
+      </div>
+
+      <!--Add Item Button and Open Add Window-->
+      <div class="col-xl col-lg col-sm-12 col-md-4 d-grid justify-content-md-end ">
+
+        <!--Button-->
+        <button class="btn btn-primary mt-4 d-grid  col-6 col-md-12 col-sm-6 mx-auto"
+                data-bs-target="#addItemModalItem"
+                data-bs-toggle="modal"
+                type="button">+Add Item
+        </button>
+
+        <!--Fade Container-->
+        <div aria-hidden="true" aria-labelledby="addItemModalLabelItem" class="modal fade" id="addItemModalItem"
+             tabindex="-1">
+
+          <div class="modal-dialog-centered modal-dialog">
+
+            <!--Main Message Container-->
+            <div class="modal-content">
+
+              <!--Message Container-->
+              <div class="modal-header bg-primary text-light">
+                <h5 class="modal-title " id="addItemModalLabelItem">Add New Item</h5>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal"
+                        type="button"></button>
+              </div>
+
+              <!--Message/Modal Body-->
+              <div class="modal-body">
+                <form>
+                  <div>
+                    <label class="col-form-label" for="itemId">Item Code:</label>
+                    <input class="form-control" id="itemId" type="text">
+                    <span class="control-error" style="color: red" id="lblItemCode"></span>
+                  </div>
+                  <div>
+                    <label class="col-form-label" for="itemName">Item Name:</label>
+                    <input class="form-control" id="itemName" type="text">
+                    <span class="control-error" style="color: red" id="lblItemName"></span>
+                  </div>
+                  <div>
+                    <label class="col-form-label" for="itemPrice">Item Price:</label>
+                    <input class="form-control" id="itemPrice" type="text">
+                    <span class="control-error" style="color: red" id="lblItemPrice"></span>
+                  </div>
+                  <div>
+                    <label class="col-form-label" for="itemQtyOnHand">Item Quantity:</label>
+                    <input class="form-control" id="itemQtyOnHand" type="number">
+                    <span class="control-error" style="color: red" id="lblItemQTY"></span>
+                  </div>
+                </form>
+              </div>
+
+              <!--Message Footer/Button-->
+              <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+                <button class="btn btn-primary" id="btnItemSave" type="button">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!--Item Details Title Row-->
+    <div class="p-3 rounded-3  text-light fw-bolder mt-4" style="background-color: #264259">Item Details</div>
+
+
+    <!--Item Detail Body-->
+    <div class="px-3 rounded-3 mt-4 p-3 border mb-lg-0 mb-sm-4 mb-4 shadow-sm">
+
+      <!--First Row-->
+      <div class="row gx-3">
+        <!--Item-->
+        <div class="col-5 col-sm-5 col-lg">
+          <div class="mb-4">
+            <label class="form-label" for="itId">Item Code</label>
+            <input class="form-control" disabled id="itId" placeholder="P001" type="text">
+          </div>
+        </div>
+        <!--Name-->
+        <div class="col-7 col-sm-7 col-lg">
+          <div class="mb-4">
+            <label class="form-label" for="itName">Name</label>
+            <input class="form-control" id="itName" placeholder="Sunlight" type="text">
+          </div>
+        </div>
+        <!--QTY-->
+        <div class="col col-lg">
+          <div class="mb-2">
+            <label class="form-label" for="qtyOnHand">Quantity</label>
+            <input class="form-control" id="qtyOnHand" placeholder="00" type="number">
+          </div>
+        </div>
+        <!--UP-->
+        <div class="col col-lg">
+          <div class="mb-2">
+            <label class="form-label" for="itPrice">Unit Price</label>
+            <input class="form-control" id="itPrice" placeholder="0000.00" type="text">
+          </div>
+        </div>
+
+      </div>
+
+      <!--Second Row/Buttons-->
+      <div class="row">
+        <div class=" gap-2 d-flex justify-content-center justify-content-md-end justify-content-sm-center  mt-4 mt-lg-2">
+          <button class="btn btn-secondary" id="btnItemClear" type="button">Clear</button>
+          <button class="btn btn-danger" id="btnItemDelete" type="button">Delete</button>
+          <button class="btn btn-primary" id="btnItemUpdate"type="button">Update</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--line-->
+  <hr class="mt-4">
+
+
+  <!--All Item Details Main-->
+  <section>
+    <!--Item Title Row-->
+    <div>
+      <div class="row ">
+        <div class="p-1 px-3 col rounded-3 fw-bolder text-light fs-3 mt-1 shadow-sm" style="background-color: #bc7fcd"><i class="fa-solid fa-boxes-packing"></i>&nbsp;&nbsp;All Items
+        </div>
+      </div>
+    </div>
+
+
+    <!--All Item Detail Table-->
+    <div class="mb-5 mt-4 table-wrapper-scroll-y my-custom-scrollbar">
+      <table class="table table-hover table-borderless table-striped">
+        <thead class="text-light" style="background-color: #264259">
+        <tr>
+          <th scope="col">Item Code</th>
+          <th scope="col">Item Name</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Unit Price(Rs)</th>
+        </tr>
+        </thead>
+        <tbody id="tblItem">
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/jquery-3.6.1.min.js"></script>
+
+</body>
+
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="assets/js/SPANavBar.js"></script>
+
+</html>
