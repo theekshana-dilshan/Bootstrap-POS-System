@@ -53,7 +53,7 @@
 
 
 <!--Site Dashboard-->
-<main id="dashboardPage" style="display: block" class="container position-relative">
+<main id="dashboardPage" class="container position-relative">
     <!--Head/Dashboard Title-->
     <div>
         <div class="row ">
@@ -109,7 +109,7 @@
                     <div class="col col-lg col-sm-12 ">
                         <div class="mb-4">
                             <label for="customerNameDash" class="form-label">Customer Name</label>
-                            <input type="text" class="form-control" id="customerNameDash" placeholder="Dasun" disabled>
+                            <input type="text" class="form-control" id="customerNameDash" placeholder="Customer name" disabled>
                         </div>
                     </div>
 
@@ -176,7 +176,7 @@
 </main>
 
 <!--Order-->
-<main id="orderPage" style="display: none" class="container position-relative">
+<main id="orderPage" class="container position-relative">
     <!--Place Order Title-->
     <div>
         <div class="row ">
@@ -223,7 +223,7 @@
                             <div class="col">
                                 <div class="mb-lg-4 mb-sm-3 mb-3">
                                     <label for="customerNameOrd" class="form-label">Customer</label>
-                                    <input type="text" class="form-control" disabled id="customerNameOrd" placeholder="Hasitha">
+                                    <input type="text" class="form-control" disabled id="customerNameOrd" placeholder="customer name">
                                 </div>
                             </div>
                         </div>
@@ -234,7 +234,7 @@
                             </div>
                             <div class="mb-lg-4 mb-md-5 ">
                                 <label for="addressOrd" class="form-label">Address</label>
-                                <input type="text" class="form-control" disabled id="addressOrd" placeholder="Bandaragama">
+                                <input type="text" class="form-control" disabled id="addressOrd" placeholder="customer address">
                             </div>
                         </div>
                     </div>
@@ -260,7 +260,7 @@
                             <div class="col">
                                 <div class="mb-4">
                                     <label for="item" class="form-label">Item</label>
-                                    <input type="text" class="form-control" disabled id="item" placeholder="Sunlight">
+                                    <input type="text" class="form-control" disabled id="item" placeholder="item name">
                                 </div>
                             </div>
                         </div>
@@ -380,7 +380,7 @@
 </main>
 
 <!--Item-->
-<main id="itemPage" style="display: none" class="container position-relative">
+<main id="itemPage" class="container position-relative">
     <!--customer title-->
     <div>
         <div class="row ">
@@ -497,7 +497,7 @@
                 <div class="col-7 col-sm-7 col-lg">
                     <div class="mb-4">
                         <label class="form-label" for="itName">Name</label>
-                        <input class="form-control" id="itName" placeholder="Sunlight" type="text">
+                        <input class="form-control" id="itName" placeholder="item name" type="text">
                     </div>
                 </div>
                 <!--QTY-->
@@ -567,7 +567,7 @@
 </main>
 
 <!--Customer-->
-<main id="customerPage" style="display: none" class="container position-relative">
+<main id="customerPage" class="container position-relative">
     <!--customer title-->
     <div>
         <div class="row ">
@@ -684,7 +684,7 @@
                     <div class="col-7 col-sm-7 col-lg">
                         <div class="mb-4">
                             <label class="form-label" for="cName">Name</label>
-                            <input class="form-control"  id="cName" placeholder="Hasitha" type="text">
+                            <input class="form-control"  id="cName" placeholder="customer name" type="text">
                         </div>
                     </div>
 
@@ -701,7 +701,7 @@
                     <div class="col">
                         <div class="mb-2">
                             <label class="form-label" for="cAddress">Address</label>
-                            <input class="form-control"  id="cAddress" placeholder="Bandaragama" type="text">
+                            <input class="form-control"  id="cAddress" placeholder="customer address" type="text">
                         </div>
                     </div>
                 </div>
@@ -750,15 +750,18 @@
             </table>
         </div>
     </section>
-
-
 </main>
 
 <script src="assets/js/jquery-3.6.1.min.js"></script>
+<script src="controllers/CustomerController.js"></script>
+<script src="controllers/ItemController.js"></script>
+<script src="controllers/OrderController.js"></script>
+<script src="controllers/HomeController.js"></script>
 </body>
 
 
 <script src="assets/bootstrap/js/bootstrap.min.js"></script>
 <script src="assets/js/SPANavBar.js"></script>
+<script src=""></script>
 
 </html>

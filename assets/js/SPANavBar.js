@@ -1,3 +1,12 @@
+$('#dashboardPage').css('display','block');
+$('#orderPage').css('display','none');
+$('#itemPage').css('display','none');
+$('#customerPage').css('display','none');
+
+$('#btnDash').css({"font-weight": "bold"});
+$('#btnOrder').css({"font-weight": "normal"});
+$('#btnItem').css({"font-weight": "normal"});
+$('#btnCustomer').css({"font-weight": "normal"});
 
 $('#btnDash').click(function (){
     $('#dashboardPage').css('display','block');
