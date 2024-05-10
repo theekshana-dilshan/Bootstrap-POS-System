@@ -151,7 +151,7 @@ $("#btnCusDelete").click(function () {
 
 function searchCustomer(cusID) {
     for (let customer of customerAr) {
-        if (customer.customerId == cusID) {
+        if (customer.customerId === cusID) {
             return customer;
         }
     }
@@ -186,10 +186,10 @@ $("#btnCusUpdate").click(function () {
 function updateCustomer(customerID) {
     let customer = searchCustomer(customerID);
     if (customer != null) {
-        customer.cusId = $("#cId").val();
-        customer.cusName = $("#cName").val();
-        customer.cusAddress = $("#cAddress").val();
-        customer.cusSalary = $("#cSalary").val();
+        customer.customerId = $("#cId").val();
+        customer.customerName = $("#cName").val();
+        customer.customerAddress = $("#cAddress").val();
+        customer.customerSalary = $("#cSalary").val();
         addCustomerTable();
         return true;
     } else {
@@ -199,7 +199,7 @@ function updateCustomer(customerID) {
 
 /*Disable Tab*/
 $("#customerId,#customerName,#customerAddress,#customerSalary").on('keydown', function (event) {
-    if (event.key == "Tab") {
+    if (event.key === "Tab") {
         event.preventDefault();
     }
 });

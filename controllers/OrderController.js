@@ -1,4 +1,5 @@
-/*import TempCartModel from "../model/TempCartModel";*/
+import TempCartModel from "../model/TempCartModel.js";
+import OrderModel from "../model/OrderModel.js";
 import {customerAr} from "../db/db.js";
 import {itemAr} from "../db/db.js";
 import {orders} from "../db/db.js";
@@ -206,7 +207,10 @@ $('#purchaseOrder').click(function (){
     let discount = disTOGave;
     let subTotal = $('#subTotal').val();
 
-    orderModal(orderId,orderDate,customerName,discount,subTotal);
+    /*orderModal(orderId,orderDate,customerName,discount,subTotal);*/
+
+    let orderObj = new OrderModel(orderId,orderDate,customerName,discount,subTotal);
+    orders.push(orderObj);
 
     loadAllOrder();
     blindOrderRowClickEvent();

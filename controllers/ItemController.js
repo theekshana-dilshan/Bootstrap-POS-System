@@ -143,7 +143,7 @@ $("#btnItemDelete").click(function () {
 
 function searchItem(itemId) {
     for (let item of itemAr) {
-        if (item.itemCode == itemId) {
+        if (item.itemCode === itemId) {
             return item;
         }
     }
