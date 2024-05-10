@@ -1,50 +1,50 @@
 export default class TempCartModel {
-    constructor(itemCode, itemName, itemPrice, itemOrderQty, total) {
-        this._itemCode = itemCode;
-        this._itemName = itemName;
-        this._itemPrice =itemPrice;
-        this._itemOrderQty = itemOrderQty;
-        this._total = total;
+    constructor(orItemCode, orItemName, orItemPrice, orItemQty, orItemTotal) {
+        this._orItemCode = orItemCode;
+        this._orItemName = orItemName;
+        this._orItemPrice =orItemPrice;
+        this._orItemQty = orItemQty;
+        this._orItemTotal = orItemTotal;
     }
 
 
-    get itemCode() {
-        return this._itemCode;
+    get orItemCode() {
+        return this._orItemCode;
     }
 
-    set itemCode(value) {
-        this._itemCode = value;
+    set orItemCode(value) {
+        this._orItemCode = value;
     }
 
-    get itemName() {
-        return this._itemName;
+    get orItemName() {
+        return this._orItemName;
     }
 
-    set itemName(value) {
-        this._itemName = value;
+    set orItemName(value) {
+        this._orItemName = value;
     }
 
-    get itemPrice() {
-        return this._itemPrice;
+    get orItemPrice() {
+        return this._orItemPrice;
     }
 
-    set itemPrice(value) {
-        this._itemPrice = value;
+    set orItemPrice(value) {
+        this._orItemPrice = value;
     }
 
-    get itemOrderQty() {
-        return this._itemOrderQty;
+    get orItemQty() {
+        return this._orItemQty;
     }
 
-    set itemOrderQty(value) {
-        this._itemOrderQty = value;
+    set orItemQty(value) {
+        this._orItemQty = value;
     }
 
-    get total() {
-        return this._total;
+    get orItemTotal() {
+        return this._orItemTotal;
     }
 
-    set total(value) {
-        this._total = value;
+    set orItemTotal(value) {
+        this._orItemTotal = value;
     }
 }

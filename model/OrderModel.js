@@ -1,8 +1,8 @@
 export default class OrderModel {
-    constructor(orderId, orderDate, customerName, discount, subTotal) {
+    constructor(orderId, orderDate, orderCustomer, discount, subTotal) {
         this._orderId =orderId;
         this._orderDate = orderDate;
-        this._customerName = customerName;
+        this._orderCustomer = orderCustomer;
         this._discount = discount;
         this._subTotal = subTotal;
     }
@@ -25,11 +25,11 @@ export default class OrderModel {
     }
 
     get customerName() {
-        return this._customerName;
+        return this._orderCustomer;
     }
 
     set customerName(value) {
-        this._customerName = value;
+        this._orderCustomer = value;
     }
 
     get discount() {
