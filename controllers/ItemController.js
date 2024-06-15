@@ -1,9 +1,29 @@
 import ItemModel from "../model/ItemModel.js";
-import {itemAr} from "../db/db.js";
+import {customerAr, itemAr} from "../db/db.js";
+
+$("#itemId").val(itemIdGenerate());
 
 $('#btnItemSave').click(function (event) {
     itemSave($('#itemId').val(),$('#itemName').val(),$('#itemQtyOnHand').val(),$('#itemPrice').val());
+    $("#itemId").val(itemIdGenerate());
 });
+
+function itemIdGenerate() {
+    let lastId = 'I00-001';
+
+    if (itemAr.length > 0) {
+        let lastElement = itemAr[itemAr.length - 1];
+
+        if (lastElement && lastElement.itemCode) {
+            let lastIdParts = lastElement.itemCode.split('-');
+            let lastNumber = parseInt(lastIdParts[1]);
+
+            lastId = `I00-${String(lastNumber + 1).padStart(3, '0')}`;
+        }
+    }
+
+    return lastId;
+}
 
 function itemSave(itemCode, itemName, qtyOnHand, itemPrice) {
 

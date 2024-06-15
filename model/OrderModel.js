@@ -24,11 +24,11 @@ export default class OrderModel {
         this._orderDate = value;
     }
 
-    get customerName() {
+    get orderCustomer() {
         return this._orderCustomer;
     }
 
-    set customerName(value) {
+    set orderCustomer(value) {
         this._orderCustomer = value;
     }
 

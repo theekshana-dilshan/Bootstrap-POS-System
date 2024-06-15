@@ -1,16 +1,34 @@
 import CustomerModel from "../model/CustomerModel.js";
 import {customerAr} from "../db/db.js";
 
+$("#customerId").val(cusIdGenerate());
+
 $('#btnSaveCustomer').click(function (event) {
     cusSave($('#customerId').val(),$('#customerName').val(),$('#customerAddress').val(),$('#customerSalary').val());
+    $("#customerId").val(cusIdGenerate());
 });
+
+function cusIdGenerate() {
+    let lastId = 'C00-001';
+
+    if (customerAr.length > 0) {
+        let lastElement = customerAr[customerAr.length - 1];
+
+        if (lastElement && lastElement.customerId) {
+            let lastIdParts = lastElement.customerId.split('-');
+            let lastNumber = parseInt(lastIdParts[1]);
+
+            lastId = `C00-${String(lastNumber + 1).padStart(3, '0')}`;
+        }
+    }
+
+    return lastId;
+}
 
 function cusSave(customerID,customerName,customerAddress,customerSalary) {
 
     let customerObj = new CustomerModel(customerID, customerName, customerAddress, customerSalary);
     customerAr.push(customerObj);
-
-    /*Double click to remove*/
 
     addCustomerTable();
     dblClickCusDelete();

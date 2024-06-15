@@ -5,9 +5,24 @@ import {itemAr} from "../db/db.js";
 import {orders} from "../db/db.js";
 import {tempOrderCartAr} from "../db/db.js";
 
+$("#orderId").val(ordIdGenerate());
 
-/*Listener fir the Customer Combo*/
-console.log("Awa")
+function ordIdGenerate() {
+    let lastId = 'O00-001';
+
+    if (orders.length > 0) {
+        let lastElement = orders[orders.length - 1];
+
+        if (lastElement && lastElement.orderId) {
+            let lastIdParts = lastElement.orderId.split('-');
+            let lastNumber = parseInt(lastIdParts[1]);
+
+            lastId = `O00-${String(lastNumber + 1).padStart(3, '0')}`;
+        }
+    }
+
+    return lastId;
+}
 
 $('#customerIdOrd').on('change',function (){
     /*get Customer*/
@@ -148,7 +163,7 @@ $('#cash').on('keyup',function (){
 /*Remove Duplicate Row*/
 function searchRowExists(itemCode) {
     for (let tempOr of tempOrderCartAr) {
-        console.log(tempOr.orItemCOde+"-----"+itemCode);
+        console.log(tempOr.orItemCode+"-----"+itemCode);
         if(tempOr.orItemCode===itemCode){
             return tempOr
         }
@@ -203,13 +218,13 @@ function clearData() {
 $('#purchaseOrder').click(function (){
     let orderId = $('#orderId').val();
     let orderDate = $('#OrderDate').val();
-    let customerName = $('#customerNameOrd').val();
+    let orderCustomer = $('#customerNameOrd').val();
     let discount = disTOGave;
     let subTotal = $('#subTotal').val();
 
     /*orderModal(orderId,orderDate,customerName,discount,subTotal);*/
 
-    let orderObj = new OrderModel(orderId,orderDate,customerName,discount,subTotal);
+    let orderObj = new OrderModel(orderId,orderDate,orderCustomer,discount,subTotal);
     orders.push(orderObj);
 
     loadAllOrder();
@@ -221,6 +236,7 @@ $('#purchaseOrder').click(function (){
     }
     tempOrderCartAr.pop();
     addCartData();
+    $("#orderId").val(ordIdGenerate());
 });
 
 /*FUNCTIONS*/
@@ -261,6 +277,6 @@ function clearOrderTexts(){
 function loadAllOrder(){
     $("#tblOrder> tr").detach();
     for (var i of orders){
-        $('#tblOrder').append('<tr><td>'+i.orderId+'</td>'+'<td>'+i.orderDate+'</td>'+'<td>'+i.orCustomerName+'</td>'+'<td>'+i.discount+'</td>'+'<td>'+i.subTotal+'</td></tr>');
+        $('#tblOrder').append('<tr><td>'+i.orderId+'</td>'+'<td>'+i.orderDate+'</td>'+'<td>'+i.orderCustomer+'</td>'+'<td>'+i.discount+'</td>'+'<td>'+i.subTotal+'</td></tr>');
     }
 }
