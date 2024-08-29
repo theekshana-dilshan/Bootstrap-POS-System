@@ -2,55 +2,113 @@ import CustomerModel from "../model/CustomerModel.js";
 import {customerAr} from "../db/db.js";
 
 $("#customerId").val(cusIdGenerate());
+addCustomerTable();
+loadAllCustomerId();
 
-$('#btnSaveCustomer').click(function (event) {
-    cusSave($('#customerId').val(),$('#customerName').val(),$('#customerAddress').val(),$('#customerSalary').val());
-    $("#customerId").val(cusIdGenerate());
-});
-
-function cusIdGenerate() {
-    let lastId = 'C00-001';
-
-    if (customerAr.length > 0) {
-        let lastElement = customerAr[customerAr.length - 1];
-
-        if (lastElement && lastElement.customerId) {
-            let lastIdParts = lastElement.customerId.split('-');
-            let lastNumber = parseInt(lastIdParts[1]);
-
-            lastId = `C00-${String(lastNumber + 1).padStart(3, '0')}`;
+$('#btnSaveCustomer').click(function (e) {
+    e.preventDefault();
+    const customer = {
+        customerId:$("#customerId").val(),
+        customerName: $('#customerName').val(),
+        customerAddress: $('#customerAddress').val(),
+        customerSalary: $('#customerSalary').val()
+    };
+    const customerJson=JSON.stringify(customer);
+    const http=new XMLHttpRequest();
+    http.onreadystatechange=()=>{
+        if(http.readyState==4){
+            if(http.status==200 || http.status==201){
+                const jsonTypeResponse=JSON.stringify(http.responseText);
+                console.log(jsonTypeResponse);
+            }else{
+                console.error("failed");
+                console.error(http.status);
+            }
+        }else{
+            console.log("Processing stage",http.readyState);
         }
     }
 
-    return lastId;
-}
+    http.open("POST","http://localhost:8080/bootstrapPosBackend/customer",true);
+    http.setRequestHeader("Content-Type","application/json");
+    http.send(customerJson);
 
-function cusSave(customerID,customerName,customerAddress,customerSalary) {
+    console.log('Customer data:', customer);
+    alert('Customer information saved successfully!');
 
-    let customerObj = new CustomerModel(customerID, customerName, customerAddress, customerSalary);
-    customerAr.push(customerObj);
+    $("#customerId").val(cusIdGenerate());
 
     addCustomerTable();
-    dblClickCusDelete();
     loadAllCustomerId();
     clearAllCusData();
+});
+
+function cusIdGenerate() {
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const response = JSON.parse(http.responseText);
+                $("#customerId").val(response.customerId);
+                console.log("Generated Customer ID:", response.customerId);
+            } else {
+                console.error("Failed to generate Customer ID");
+                console.error(http.status);
+            }
+        }
+    };
+
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/customer?action=generateId", true);
+    http.send();
 }
 
 function addCustomerTable() {
-    $("#tblCustomer> tr").detach();
+    $("#tblCustomer > tr").detach();
 
-    for (var customer of customerAr){
-        var row="<tr><td>"+customer.customerId+"</td><td>"+customer.customerName+"</td><td>"+customer.customerAddress+"</td><td>"+customer.customerAddress+"</td></tr>";
-        $('#tblCustomer').append(row);
-    }
-    trCusSelector();
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const customers = JSON.parse(http.responseText);
+
+                for (var customer of customers) {
+                    var row = "<tr><td>" + customer.customerId + "</td><td>" + customer.customerName + "</td><td>" + customer.customerAddress + "</td><td>" + customer.customerSalary + "</td></tr>";
+                    $('#tblCustomer').append(row);
+                }
+
+                trCusSelector();
+            } else {
+                console.error("Failed to fetch customer data");
+                console.error(http.status);
+            }
+        }
+    };
+
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/customer", true);
+    http.send();
 }
 
 function loadAllCustomerId() {
     $('#customerIdOrd').empty();
-    for (let customerArElement of customerAr) {
-        $('#customerIdOrd').append(`<option>${customerArElement.customerId}</option>`);
-    }
+
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const customers = JSON.parse(http.responseText);
+
+                for (let customer of customers) {
+                    $('#customerIdOrd').append(`<option>${customer.customerId}</option>`);
+                }
+            } else {
+                console.error("Failed to load customer IDs");
+                console.error(http.status);
+            }
+        }
+    };
+
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/customer", true);
+    http.send();
 }
 
 /*====Add Focus Event when user Click Enter====*/
@@ -96,42 +154,43 @@ $('#customerSalary').on('keydown',function (event){
 
 /*Search Customer*/
 $('#btnSearchButton').click(function () {
+    const searchValue = $('#inputCusSearch').val();
+    const searchBy = $('#cusCombo').val();
+    let url = "http://localhost:8080/bootstrapPosBackend/customer";
 
-    for (let customerKey of customerAr) {
+    if (searchBy === "ID") {
+        url += `?customerId=${searchValue}`;
+    } else if (searchBy === "1") {
+        url += `?customerName=${searchValue}`;
+    }
 
-        //check the ComboBox Id Equal
-        console.log($('#cusCombo').val());
-
-        if($('#cusCombo').val()==="ID"){
-            //check Id
-            // alert(customerKey.id+"=="+$('#inputCusSearch').val());
-
-            if(customerKey.customerId===$('#inputCusSearch').val()){
-                $('#cId').val(customerKey.customerId);
-                $('#cName').val(customerKey.customerName);
-                $('#cSalary').val(customerKey.customerSalary);
-                $('#cAddress').val(customerKey.customerAddress);
-            }
-        }else if($('#cusCombo').val()==="1"){
-            //check Name
-            if(customerKey.customerName===$('#inputCusSearch').val()){
-                $('#cId').val(customerKey.customerId);
-                $('#cName').val(customerKey.customerName);
-                $('#cSalary').val(customerKey.customerSalary);
-                $('#cAddress').val(customerKey.customerAddress);
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const customer = JSON.parse(http.responseText);
+                if (customer) {
+                    $('#cId').val(customer.customerId);
+                    $('#cName').val(customer.customerName);
+                    $('#cSalary').val(customer.customerSalary);
+                    $('#cAddress').val(customer.customerAddress);
+                    $("#customerId").val(cusIdGenerate());
+                } else {
+                    alert("Customer not found");
+                    $("#customerId").val(cusIdGenerate());
+                }
+            } else {
+                console.error("Failed to search customer");
+                console.error(http.status);
+                $("#customerId").val(cusIdGenerate());
             }
         }
-    }
+    };
+
+    http.open("GET", url, true);
+    http.send();
 });
 
-/*Double Click delete*/
-function dblClickCusDelete() {
-    $("#tblCustomer>tr").dblclick(function (){
-        deleteCustomer($(this).children(':eq(0)').text());
-        $(this).remove();
-        addCustomerTable();
-    });
-}
 
 /*When the table click set data to the field*/
 function trCusSelector() {
@@ -152,69 +211,65 @@ function trCusSelector() {
 }
 
 /*for Delete Customer*/
-$("#btnCusDelete").click(function () {
-    let delID = $("#cId").val();
+$("#btnCusDelete").click(function (e) {
+    e.preventDefault();
+    const customerId = $("#cId").val();
 
-    let option = confirm("Do you really want to delete customer id :" + delID);
-    if (option){
-        if (deleteCustomer(delID)) {
-            alert("Customer Successfully Deleted..");
-            clearAllCusData();
-
-        } else {
-            alert("No such customer to delete. please check the id");
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState == 4) {
+            if (http.status == 204) {
+                console.log("Customer deleted successfully");
+                alert('Customer deleted successfully!');
+                clearAllCusData();
+                $("#customerId").val(cusIdGenerate());
+                addCustomerTable();
+                loadAllCustomerId();
+            } else {
+                console.error("Failed to delete customer");
+                console.error(http.status);
+                $("#customerId").val(cusIdGenerate());
+            }
         }
-    }
+    };
+
+    http.open("DELETE", `http://localhost:8080/bootstrapPosBackend/customer?customerId=${customerId}`, true);
+    http.send();
 });
-
-function searchCustomer(cusID) {
-    for (let customer of customerAr) {
-        if (customer.customerId === cusID) {
-            return customer;
-        }
-    }
-    return null;
-}
-
-function deleteCustomer(customerID) {
-    let customer = searchCustomer(customerID);
-
-    if (customer != null) {
-        let indexNumber = customerAr.indexOf(customer);
-        customerAr.splice(indexNumber, 1);
-        addCustomerTable();
-        return true;
-    } else {
-        return false;
-    }
-}
 
 /*Update Customer*/
-$("#btnCusUpdate").click(function () {
-    let customerID = $('#cId').val();
-    let response = updateCustomer(customerID);
-    if (response) {
-        alert("Customer Updated Successfully");
-    } else {
-        alert("Update Failed..!");
+$("#btnCusUpdate").click(function (e) {
+    e.preventDefault();
+    const customerId = $("#cId").val();
+    const customer = {
+        customerId: $('#cId').val(),
+        customerName: $('#cName').val(),
+        customerAddress: $('#cAddress').val(),
+        customerSalary: $('#cSalary').val()
+    };
+    const customerJson = JSON.stringify(customer);
 
-    }
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState == 4) {
+            if (http.status == 204) {
+                console.log("Customer updated successfully");
+                alert('Customer information updated successfully!');
+                $("#customerId").val(cusIdGenerate());
+                addCustomerTable();
+                loadAllCustomerId();
+            } else {
+                console.error("Failed to update customer");
+                console.error(http.status);
+                $("#customerId").val(cusIdGenerate());
+            }
+        }
+    };
+
+    http.open("PATCH", `http://localhost:8080/bootstrapPosBackend/customer?customerId=${customerId}`, true);
+    http.setRequestHeader("Content-Type", "application/json");
+    http.send(customerJson);
 });
-
-function updateCustomer(customerID) {
-    let customer = searchCustomer(customerID);
-    if (customer != null) {
-        customer.customerId = $("#cId").val();
-        customer.customerName = $("#cName").val();
-        customer.customerAddress = $("#cAddress").val();
-        customer.customerSalary = $("#cSalary").val();
-        addCustomerTable();
-        return true;
-    } else {
-        return false;
-    }
-}
-
 /*Disable Tab*/
 $("#customerId,#customerName,#customerAddress,#customerSalary").on('keydown', function (event) {
     if (event.key === "Tab") {
@@ -298,6 +353,7 @@ function setCusButtonState(value){
 
 $("#clearCus").click(function () {
     clearAllCusData();
+    $("#customerId").val(cusIdGenerate());
 });
 
 function clearAllCusData() {

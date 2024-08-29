@@ -8,64 +8,86 @@ import {tempOrderCartAr} from "../db/db.js";
 $("#orderId").val(ordIdGenerate());
 
 function ordIdGenerate() {
-    let lastId = 'O00-001';
-
-    if (orders.length > 0) {
-        let lastElement = orders[orders.length - 1];
-
-        if (lastElement && lastElement.orderId) {
-            let lastIdParts = lastElement.orderId.split('-');
-            let lastNumber = parseInt(lastIdParts[1]);
-
-            lastId = `O00-${String(lastNumber + 1).padStart(3, '0')}`;
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const response = JSON.parse(http.responseText);
+                $("#orderId").val(response.orderId);
+                console.log("Generated order ID:", response.orderId);
+            } else {
+                console.error("Failed to generate order ID");
+                console.error(http.status);
+            }
         }
-    }
+    };
 
-    return lastId;
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/orders?action=generateId", true);
+    http.send();
+
+    loadAllOrder()
+    trOrderSelector()
 }
 
 $('#customerIdOrd').on('change',function (){
-    /*get Customer*/
-    let customer = searchCustomer($('#customerIdOrd').val());
+    const customerId = $('#customerIdOrd').val();
 
-    $('#customerNameOrd').val(customer.customerName);
-    $('#salaryOrd').val(customer.customerSalary);
-    $('#addressOrd').val(customer.customerAddress);
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const customer = JSON.parse(http.responseText);
+                if (customer) {
+                    $('#customerIdOrd').val(customer.customerId);
+                    $('#customerNameOrd').val(customer.customerName);
+                    $('#salaryOrd').val(customer.customerSalary);
+                    $('#addressOrd').val(customer.customerAddress);
 
-
-});
-
-function searchCustomer(cusID) {
-    console.log(customerAr)
-    for (let customer of customerAr) {
-        if (customer.customerId === cusID) {
-            return customer;
+                    console.log("Customer found")
+                } else {
+                    alert("Customer not found");
+                }
+            } else {
+                console.error("Failed to search customer");
+                console.error(http.status);
+            }
         }
-    }
-    return null;
-}
+    };
+
+    http.open("GET", `http://localhost:8080/bootstrapPosBackend/customer?customerId=${customerId}`, true);
+    http.send();
+});
 
 /*Listener fir the Item Combo*/
 $('#itemIdOrd').on('change',function (){
-    console.log($('#itemIdOrd').val());
+    const itemCode = $('#itemIdOrd').val();
 
-    let item = searchItem($('#itemIdOrd').val());
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const item = JSON.parse(http.responseText);
+                if (item) {
+                    $('#itemIdOrd').val(item.itemCode);
+                    $('#item').val(item.itemName);
+                    $('#qtyOnHandOrd').val(item.qtyOnHand);
+                    $('#priceOrd').val(item.itemPrice);
 
-    $('#item').val(item.itemName);
-    $('#priceOrd').val(item.itemPrice);
-    $('#qtyOnHandOrd').val(item.qtyOnHand);
-
-});
-
-function searchItem(itemId) {
-    for (let item of itemAr) {
-        if (item.itemCode === itemId) {
-            return item;
+                    console.log("Item found")
+                    console.log(item)
+                } else {
+                    alert("Item not found");
+                }
+            } else {
+                console.error("Failed to search item");
+                console.error(http.status);
+            }
         }
-    }
-    return null;
-}
+    };
 
+    http.open("GET", `http://localhost:8080/bootstrapPosBackend/item?itemId=${itemCode}`, true);
+    http.send();
+});
 
 $('#btnAddToCart').click(function (){
 
@@ -73,9 +95,11 @@ $('#btnAddToCart').click(function (){
     let itmName = $('#item').val();
     let itmPrice = $('#priceOrd').val();
     let itemOrderQty = $('#orderQty').val();
+    let qtyOnHandOrd = $('#qtyOnHandOrd').val();
 
     let total =itmPrice*itemOrderQty;
 
+    let toMinQty = qtyOnHandOrd;
 
     let rowExists = searchRowExists(itemCode);
     if(rowExists!=null){
@@ -84,17 +108,21 @@ $('#btnAddToCart').click(function (){
         // rowExists.orItemQTY.val(newQty);
         rowExists.orItemQty=newQty;
         rowExists.orItemTotal=parseFloat(itmPrice)*newQty;
+
+        toMinQty = qtyOnHandOrd - itemOrderQty;
+
         addCartData();
 
     }else{
         let tempCardObj = new TempCartModel(itemCode,itmName,itmPrice,itemOrderQty,total);
         tempOrderCartAr.push(tempCardObj);
 
+        toMinQty = qtyOnHandOrd - itemOrderQty;
+
         addCartData();
     }
 
-    minQty(itemCode,itemOrderQty);
-
+    minQty(itemCode,itmName ,toMinQty, itmPrice);
 })
 
 /*Add Table*/
@@ -105,11 +133,11 @@ function addCartData() {
         var row="<tr><td>"+tc.orItemCode+"</td><td>"+tc.orItemName+"</td><td>"+tc.orItemPrice+"</td><td>"+tc.orItemQty+"</td><td>"+tc.orItemTotal+"</td></tr>";
         $('#tblCart').append(row);
     }
-    trCusSelector();
+    /*trCusSelector();*/
     getTotal();
 }
 
-function trCusSelector() {
+/*function trCusSelector() {
     $("#tblCustomer>tr").click(function (){
         let id=$(this).children(':eq(0)').text();
         let name=$(this).children(':eq(1)').text();
@@ -123,7 +151,7 @@ function trCusSelector() {
         $('#cAddress').val(address);
         $('#cSalary').val(salary);
     });
-}
+}*/
 
 function getTotal() {
     let tempTot=0;
@@ -172,23 +200,61 @@ function searchRowExists(itemCode) {
 }
 
 /*Min QTY*/
-function minQty(itemCode,orderQty) {
-    for (let itemArElement of itemAr) {
-        if(itemArElement.itemCode===itemCode){
-            itemArElement.qtyOnHand=parseInt(itemArElement.qtyOnHand)-parseInt(orderQty);
+function minQty(itemCode, itemName, qtyOnHand, itemPrice) {
+    const item = {
+        itemCode,
+        itemName,
+        qtyOnHand,
+        itemPrice
+    };
+
+    console.log(item);
+    const customerJson = JSON.stringify(item);
+
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState == 4) {
+            if (http.status == 204) {
+                console.log("Item updated successfully");
+                addTable();
+                clearData();
+            } else {
+                console.error("Failed to update item");
+                console.error(http.status);
+            }
         }
-    }
-    addTable();
-    clearData();
+    };
+
+    http.open("PATCH", `http://localhost:8080/bootstrapPosBackend/item?itemCode=${itemCode}`, true);
+    http.setRequestHeader("Content-Type", "application/json");
+    http.send(customerJson);
 }
 
 function addTable() {
-    $("#tblItem> tr").detach();
+    $("#tblItem > tr").detach();
 
-    for (var itm of itemAr){
-        var row="<tr><td>"+itm.itemCode+"</td><td>"+itm.itemName+"</td><td>"+itm.qtyOnHand+"</td><td>"+itm.itemPrice+"</td></tr>";
-        $('#tblItem').append(row);
-    }
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const items = JSON.parse(http.responseText);
+
+                for (var item of items) {
+                    var row = "<tr><td>" + item.itemCode + "</td><td>" + item.itemName + "</td><td>" + item.qtyOnHand + "</td><td>" + item.itemPrice + "</td></tr>";
+                    $('#tblItem').append(row);
+                }
+
+                trSelector();
+            } else {
+                console.error("Failed to fetch customer data");
+                console.error(http.status);
+            }
+        }
+    };
+
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/item", true);
+    http.send();
+
     trSelector();
 }
 
@@ -222,12 +288,33 @@ $('#purchaseOrder').click(function (){
     let discount = disTOGave;
     let subTotal = $('#subTotal').val();
 
-    /*orderModal(orderId,orderDate,customerName,discount,subTotal);*/
+    const order = {
+        orderId,
+        orderDate,
+        orderCustomer,
+        discount,
+        subTotal
+    };
+    const orderJson=JSON.stringify(order);
+    const http=new XMLHttpRequest();
+    http.onreadystatechange=()=>{
+        if(http.readyState==4){
+            if(http.status==200 || http.status==201){
+                const jsonTypeResponse=JSON.stringify(http.responseText);
+                console.log(jsonTypeResponse);
+            }else{
+                console.error("failed");
+                console.error(http.status);
+            }
+        }else{
+            console.log("Processing stage",http.readyState);
+        }
+    }
 
-    let orderObj = new OrderModel(orderId,orderDate,orderCustomer,discount,subTotal);
-    orders.push(orderObj);
+    http.open("POST","http://localhost:8080/bootstrapPosBackend/orders",true);
+    http.setRequestHeader("Content-Type","application/json");
+    http.send(orderJson);
 
-    loadAllOrder();
     blindOrderRowClickEvent();
     clearOrderTexts();
 
@@ -236,6 +323,7 @@ $('#purchaseOrder').click(function (){
     }
     tempOrderCartAr.pop();
     addCartData();
+
     $("#orderId").val(ordIdGenerate());
 });
 
@@ -276,7 +364,46 @@ function clearOrderTexts(){
 
 function loadAllOrder(){
     $("#tblOrder> tr").detach();
-    for (var i of orders){
-        $('#tblOrder').append('<tr><td>'+i.orderId+'</td>'+'<td>'+i.orderDate+'</td>'+'<td>'+i.orderCustomer+'</td>'+'<td>'+i.discount+'</td>'+'<td>'+i.subTotal+'</td></tr>');
-    }
+
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const orders = JSON.parse(http.responseText);
+                for (var i of orders) {
+                    $('#tblOrder').append(
+                        '<tr><td>' + i.orderId + '</td>' +
+                        '<td>' + i.orderDate + '</td>' +
+                        '<td>' + i.orderCustomer + '</td>' +
+                        '<td>' + i.discount + '</td>' +
+                        '<td>' + i.subTotal + '</td></tr>'
+                    );
+                }
+
+                trOrderSelector();
+            } else {
+                console.error("Failed to load orders");
+                console.error(http.status);
+            }
+        }
+    };
+
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/orders", true);
+    http.send();
+}
+
+function trOrderSelector() {
+    $("#tblOrder>tr").click(function (){
+        let id=$(this).children(':eq(0)').text();
+        let date=$(this).children(':eq(1)').text();
+        let name=$(this).children(':eq(2)').text();
+        let discount=$(this).children(':eq(3)').text();
+        let subTotal=$(this).children(':eq(4)').text();
+
+        $('#orderIdDash').val(id);
+        $('#OrderDateDash').val(date);
+        $('#customerNameDash').val(name);
+        $('#discountDash').val(discount);
+        $('#subTotDash').val(subTotal);
+    });
 }

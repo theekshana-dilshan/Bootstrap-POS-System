@@ -2,56 +2,116 @@ import ItemModel from "../model/ItemModel.js";
 import {customerAr, itemAr} from "../db/db.js";
 
 $("#itemId").val(itemIdGenerate());
+addTable();
+loadAllItemId();
 
-$('#btnItemSave').click(function (event) {
-    itemSave($('#itemId').val(),$('#itemName').val(),$('#itemQtyOnHand').val(),$('#itemPrice').val());
-    $("#itemId").val(itemIdGenerate());
-});
-
-function itemIdGenerate() {
-    let lastId = 'I00-001';
-
-    if (itemAr.length > 0) {
-        let lastElement = itemAr[itemAr.length - 1];
-
-        if (lastElement && lastElement.itemCode) {
-            let lastIdParts = lastElement.itemCode.split('-');
-            let lastNumber = parseInt(lastIdParts[1]);
-
-            lastId = `I00-${String(lastNumber + 1).padStart(3, '0')}`;
+$('#btnItemSave').click(function (e) {
+    e.preventDefault();
+    const item = {
+        itemCode:$("#itemId").val(),
+        itemName: $('#itemName').val(),
+        qtyOnHand: $('#itemQtyOnHand').val(),
+        itemPrice: $('#itemPrice').val()
+    };
+    const itemJson=JSON.stringify(item);
+    const http=new XMLHttpRequest();
+    http.onreadystatechange=()=>{
+        if(http.readyState==4){
+            if(http.status==200 || http.status==201){
+                const jsonTypeResponse=JSON.stringify(http.responseText);
+                console.log(jsonTypeResponse);
+                $("#itemId").val(itemIdGenerate());
+            }else{
+                console.error("failed");
+                console.error(http.status);
+                $("#itemId").val(itemIdGenerate());
+            }
+        }else{
+            console.log("Processing stage",http.readyState);
+            $("#itemId").val(itemIdGenerate());
         }
     }
 
-    return lastId;
-}
+    http.open("POST","http://localhost:8080/bootstrapPosBackend/item",true);
+    http.setRequestHeader("Content-Type","application/json");
+    http.send(itemJson);
 
-function itemSave(itemCode, itemName, qtyOnHand, itemPrice) {
+    console.log('Item data:', item);
+    alert('Item information saved successfully!');
 
-    let itemObj = new ItemModel(itemCode, itemName, qtyOnHand, itemPrice);
-    itemAr.push(itemObj);
+    $("#itemId").val(itemIdGenerate());
 
     addTable();
-    dblClickDelete();
     loadAllItemId();
     clearAllItemData();
+});
+
+function itemIdGenerate() {
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const response = JSON.parse(http.responseText);
+                $("#itemId").val(response.itemCode);
+                console.log("Generated Item ID:", response.itemCode);
+            } else {
+                console.error("Failed to generate item ID");
+                console.error(http.status);
+            }
+        }
+    };
+
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/item?action=generateId", true);
+    http.send();
 }
 
 function loadAllItemId() {
     $('#itemIdOrd').empty();
-    for (let itemArElement of itemAr) {
-        $('#itemIdOrd').append(`<option>${itemArElement.itemCode}</option>`);
-    }
+
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const items = JSON.parse(http.responseText);
+
+                for (let item of items) {
+                    $('#itemIdOrd').append(`<option>${item.itemCode}</option>`);
+                }
+            } else {
+                console.error("Failed to load items IDs");
+                console.error(http.status);
+            }
+        }
+    };
+
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/item", true);
+    http.send();
 }
 
 function addTable() {
-    $("#tblItem> tr").detach();
+    $("#tblItem > tr").detach();
 
-    for (var itm of itemAr){
-        var row="<tr><td>"+itm.itemCode+"</td><td>"+itm.itemName+"</td><td>"+itm.qtyOnHand+"</td><td>"+itm.itemPrice+"</td></tr>";
-        $('#tblItem').append(row);
-    }
-    trSelector();
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const items = JSON.parse(http.responseText);
 
+                for (var item of items) {
+                    var row = "<tr><td>" + item.itemCode + "</td><td>" + item.itemName + "</td><td>" + item.qtyOnHand + "</td><td>" + item.itemPrice + "</td></tr>";
+                    $('#tblItem').append(row);
+                }
+
+                trSelector();
+            } else {
+                console.error("Failed to fetch customer data");
+                console.error(http.status);
+            }
+        }
+    };
+
+    http.open("GET", "http://localhost:8080/bootstrapPosBackend/item", true);
+    http.send();
 }
 
 /*====Add Focus Event when user Click Enter====*/
@@ -94,41 +154,44 @@ $('#itemQtyOnHand').on('keydown',function (event){
 });
 
 /*Search Item*/
-$('#btnItemSearch').click(function () {
+$('#btnItemSearch').click(function (e) {
 
-    for (let itemKey of itemAr) {
+    const searchValue = $('#inputItemSearch').val();
+    const searchBy = $('#itemCombo').val();
+    let url = "http://localhost:8080/bootstrapPosBackend/item";
 
-        //check the ComboBox Id Equal
-        console.log($('#itemCombo').val());
+    if (searchBy === "ID") {
+        url += `?itemCode=${searchValue}`;
+    } else if (searchBy === "1") {
+        url += `?itemName=${searchValue}`;
+    }
 
-        if($('#itemCombo').val()==="ID"){
-            console.log("ide eke"+itemKey.itemCode +" = "+$('#inputItemSearch').val());
-            if(itemKey.itemCode===$('#inputItemSearch').val()){
-                $('#itId').val(itemKey.itemCode);
-                $('#itName').val(itemKey.itemName);
-                $('#qtyOnHand').val(itemKey.qtyOnHand);
-                $('#itPrice').val(itemKey.itemPrice);
-            }
-        }else if($('#itemCombo').val()==="1"){
-            //check Name
-            if(itemKey.itemName===$('#inputItemSearch').val()){
-                $('#itId').val(itemKey.itemCode);
-                $('#itName').val(itemKey.itemName);
-                $('#qtyOnHand').val(itemKey.qtyOnHand);
-                $('#itPrice').val(itemKey.itemPrice);
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState === 4) {
+            if (http.status === 200) {
+                const item = JSON.parse(http.responseText);
+                if (item) {
+                    $('#itId').val(item.itemCode);
+                    $('#itName').val(item.itemName);
+                    $('#qtyOnHand').val(item.qtyOnHand);
+                    $('#itPrice').val(item.itemPrice);
+                    $("#itemId").val(itemIdGenerate());
+                } else {
+                    alert("Customer not found");
+                    $("#itemId").val(itemIdGenerate());
+                }
+            } else {
+                console.error("Failed to search customer");
+                console.error(http.status);
+                $("#itemId").val(itemIdGenerate());
             }
         }
-    }
-});
+    };
 
-/*Double Click delete*/
-function dblClickDelete() {
-    $("#tblItem>tr").dblclick(function (){
-        deleteItem($(this).children(':eq(0)').text());
-        $(this).remove();
-        addTable();
-    });
-}
+    http.open("GET", url, true);
+    http.send();
+});
 
 /*When the table click set data to the field*/
 function trSelector() {
@@ -147,68 +210,65 @@ function trSelector() {
 }
 
 /*for Delete Item*/
-$("#btnItemDelete").click(function () {
-    let delID = $("#itId").val();
+$("#btnItemDelete").click(function (e) {
+    e.preventDefault();
+    const itemCode = $("#itId").val();
 
-    let option = confirm("Do you really want to delete Item  :" + delID);
-    if (option){
-        if (deleteItem(delID)) {
-            alert("Item Successfully Deleted..");
-            clearAllItemData();
-        } else {
-            alert("No such Item to delete. please check the Code");
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState == 4) {
+            if (http.status == 204) {
+                console.log("Item deleted successfully");
+                alert('Item deleted successfully!');
+                clearAllItemData();
+                $("#itemId").val(itemIdGenerate());
+                addTable();
+                loadAllItemId();
+            } else {
+                console.error("Failed to delete customer");
+                console.error(http.status);
+                $("#itemId").val(itemIdGenerate());
+            }
         }
-    }
+    };
+
+    http.open("DELETE", `http://localhost:8080/bootstrapPosBackend/item?itemCode=${itemCode}`, true);
+    http.send();
 });
-
-function searchItem(itemId) {
-    for (let item of itemAr) {
-        if (item.itemCode === itemId) {
-            return item;
-        }
-    }
-    return null;
-}
-
-function deleteItem(itemID) {
-    let item = searchItem(itemID);
-
-    if (item != null) {
-        let indexNumber = itemAr.indexOf(item);
-        itemAr.splice(indexNumber, 1);
-        addTable();
-
-        return true;
-    } else {
-        return false;
-    }
-}
 
 /*Update Item*/
-$("#btnItemUpdate").click(function () {
-    let itemID = $('#itId').val();
-    let response = updateItem(itemID);
-    if (response) {
-        alert("Item Updated Successfully");
-    } else {
-        alert("Update Failed..!");
+$("#btnItemUpdate").click(function (e) {
+    e.preventDefault();
+    const itemCode = $("#itId").val();
+    const item = {
+        itemCode: $('#itId').val(),
+        itemName: $('#itName').val(),
+        qtyOnHand: $('#qtyOnHand').val(),
+        itemPrice: $('#itPrice').val()
+    };
+    const customerJson = JSON.stringify(item);
 
-    }
+    const http = new XMLHttpRequest();
+    http.onreadystatechange = () => {
+        if (http.readyState == 4) {
+            if (http.status == 204) {
+                console.log("Item updated successfully");
+                alert('Item information updated successfully!');
+                $("#itemId").val(itemIdGenerate());
+                addTable();
+                loadAllItemId();
+            } else {
+                console.error("Failed to update item");
+                console.error(http.status);
+                $("#itemId").val(itemIdGenerate());
+            }
+        }
+    };
+
+    http.open("PATCH", `http://localhost:8080/bootstrapPosBackend/item?itemCode=${itemCode}`, true);
+    http.setRequestHeader("Content-Type", "application/json");
+    http.send(customerJson);
 });
-
-function updateItem(itemsID) {
-    let items = searchItem(itemsID);
-    if (items != null) {
-        items.itemCode = $("#itId").val();
-        items.itemName = $("#itName").val();
-        items.qtyOnHand = $("#qtyOnHand").val();
-        items.itemPrice = $("#itPrice").val();
-        addTable();
-        return true;
-    } else {
-        return false;
-    }
-}
 
 /*Disable Tab*/
 $("#itemId,#itemName,#itemPrice,#itemQtyOnHand").on('keydown', function (event) {
@@ -295,6 +355,7 @@ function setButtonState(value){
 /*Clear Data*/
 $("#btnItemClear").click(function () {
     clearAllItemData();
+    $("#itemId").val(itemIdGenerate());
 });
 
 function clearAllItemData() {
