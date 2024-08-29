@@ -1,8 +1,4 @@
 import TempCartModel from "../model/TempCartModel.js";
-import OrderModel from "../model/OrderModel.js";
-import {customerAr} from "../db/db.js";
-import {itemAr} from "../db/db.js";
-import {orders} from "../db/db.js";
 import {tempOrderCartAr} from "../db/db.js";
 
 $("#orderId").val(ordIdGenerate());

@@ -1,6 +1,3 @@
-import CustomerModel from "../model/CustomerModel.js";
-import {customerAr} from "../db/db.js";
-
 $("#customerId").val(cusIdGenerate());
 addCustomerTable();
 loadAllCustomerId();

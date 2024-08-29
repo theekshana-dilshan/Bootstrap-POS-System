@@ -1,6 +1,3 @@
-import {orders} from "../db/db.js";
-
-
 $('#btnSearchOrder').click(function () {
 
     let OrderId = $('#chooseOrderType').val();

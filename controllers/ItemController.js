@@ -1,6 +1,3 @@
-import ItemModel from "../model/ItemModel.js";
-import {customerAr, itemAr} from "../db/db.js";
-
 $("#itemId").val(itemIdGenerate());
 addTable();
 loadAllItemId();
